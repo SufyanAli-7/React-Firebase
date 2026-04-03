@@ -2,6 +2,8 @@ import { Col, Form, Row, Typography, Input, Button, DatePicker, Select } from "a
 import { useState } from "react"
 import { useAuth } from "../../../context/Auth"
 import { useNavigate } from "react-router-dom"
+import { addDoc, collection, doc, setDoc } from "firebase/firestore"
+import { firestore } from "@/config/firebase"
 const { Title } = Typography
 const { Option } = Select
 
@@ -15,11 +17,13 @@ const initialState = {
 const Add = () => {
   const { user } = useAuth()
   const Navigate = useNavigate()
+
   const [state, setState] = useState(initialState)
   const [isAppLoading, setIsAppLoading] = useState(false)
+
   const handleChange = e => setState(s => ({ ...s, [e.target.name]: e.target.value }))
 
-  const handleAdd = () => {
+  const handleAdd = async () => {
     let { title, description, dueDate, priority } = state
     title = title.trim()
     description = description.trim()
@@ -36,14 +40,17 @@ const Add = () => {
 
     setIsAppLoading(true)
 
-    const todos = JSON.parse(localStorage.getItem("todos")) || []
-    todos.push(todo)
-    localStorage.setItem("todos", JSON.stringify(todos))
-
-    setTimeout(() => {
-      setIsAppLoading(false)
+    try {
+      //  await addDoc(collection(firestore, "todos"), todo);
+       await setDoc(doc(firestore, "todos", todo.id), todo);
       window.toastify("Todo added successfully", "success")
-    }, 1000);
+
+    } catch (e) {
+      console.error("Error adding document: ", e);
+      window.toastify("Failed to add todo", "error")
+    } finally {
+      setIsAppLoading(false)
+    }
   }
 
 
@@ -54,7 +61,7 @@ const Add = () => {
 
           <div className="d-flex align-items-center justify-content-between mb-4">
             <Title level={2} className="mb-0">Add Todo</Title>
-            <Button type="primary" size="small" onClick={() =>{ Navigate ("/dashboard/todos")}}>Todos</Button>
+            <Button type="primary" size="small" onClick={() => { Navigate("/dashboard/todos") }}>Todos</Button>
           </div>
           <Form layout='vertical'>
             <Row>
