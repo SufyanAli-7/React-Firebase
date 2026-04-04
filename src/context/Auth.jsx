@@ -1,5 +1,6 @@
-import { auth } from "@/config/firebase"
+import { auth, firestore } from "@/config/firebase"
 import { onAuthStateChanged, signOut } from "firebase/auth"
+import { doc, getDoc } from "firebase/firestore"
 import { createContext, useContext, useEffect, useState } from "react"
 
 const Auth = createContext()
@@ -11,13 +12,23 @@ const AuthContext = ({ children }) => {
     const [isAppLoading, setIsAppLoading] = useState(true)
 
     const readProfile = () => {
-        onAuthStateChanged(auth, (user) => {
+        onAuthStateChanged(auth, async (user) => {
             if (user) {
-                setState({ isAuth: true, user })
+                 const docSnap = await getDoc(doc(firestore, "users", user.uid));
+                
+                    if (docSnap.exists()) {
+                      const user = docSnap.data()
+                      console.log("User Profile:", user);
+                      setState({ isAuth: true, user })
+                    } else {
+                      console.error("User not found")
+                    }
+                    setIsAppLoading(false)
+            } else {
+                setIsAppLoading(false)
             }
-            setIsAppLoading(false)
+            
         })
-
     }
     useEffect(() => {
         readProfile()

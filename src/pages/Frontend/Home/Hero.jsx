@@ -9,7 +9,8 @@ const Hero = () => {
         <Row>
             <Col span={24} className="text-center mt-4">
                 <Title level={1} className="text-center">Hero</Title>
-                <Paragraph className="text-center">Welcome <span className="fw-bold">{user.fullName || user.email}</span> to our website!</Paragraph>
+                <Paragraph className="text-center">This is the hero section of the homepage.</Paragraph>
+                <Paragraph className="text-center">Welcome <span className="fw-bold">{user.fullName || user.email}</span> to our website!</Paragraph>                
             </Col>
         </Row>
     </div>
